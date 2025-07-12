@@ -32,29 +32,74 @@ def index():
 @app.route('/generate', methods=['POST'])
 def generate_story():
     data = request.json
-    # Mock response for now
-    response = {
-        'text': f"In the neon-lit streets of {data.get('setting')}, {data.get('character')} searches for clues to {data.get('goal')}...",
-        'choices': [
-            "Investigate the mysterious alley",
-            "Follow the digital trail",
-            "Seek help from local contacts"
-        ]
-    }
+    setting = data.get('setting', 'a mysterious city')
+    character = data.get('character', 'an unknown hero')
+    goal = data.get('goal', 'solve a mystery')
+    prompt = (
+        f"You are a creative AI storyteller. Write the opening paragraph of an interactive story. "
+        f"Setting: {setting}. Main character: {character}. Goal: {goal}. "
+        f"End the paragraph with three choices for what the character can do next. "
+        f"Format the response as: \nStory: <paragraph>\nChoices: <choice1>; <choice2>; <choice3>"
+    )
+    try:
+        completion = openai.ChatCompletion.create(
+            model="gpt-3.5-turbo",
+            messages=[{"role": "user", "content": prompt}],
+            max_tokens=300,
+            temperature=0.8
+        )
+        ai_response = completion.choices[0].message['content']
+        # Parse the AI response
+        story_text = ai_response
+        choices = []
+        if 'Choices:' in ai_response:
+            story_text, choices_str = ai_response.split('Choices:', 1)
+            choices = [c.strip() for c in choices_str.split(';') if c.strip()]
+        response = {
+            'text': story_text.strip(),
+            'choices': choices if choices else ["Continue"]
+        }
+    except Exception as e:
+        response = {
+            'text': f"Error generating story: {e}",
+            'choices': ["Try again"]
+        }
     return jsonify(response)
 
 @app.route('/continue', methods=['POST'])
 def continue_story():
     data = request.json
-    # Mock response for now
-    response = {
-        'text': "The story continues...",
-        'choices': [
-            "Proceed with caution",
-            "Take a bold approach",
-            "Seek an alternative path"
-        ]
-    }
+    story_so_far = data.get('story', '')
+    last_choice = data.get('choice', '')
+    prompt = (
+        f"Continue the following interactive story based on the user's last choice. "
+        f"Story so far: {story_so_far}\n"
+        f"User's last choice: {last_choice}\n"
+        f"Write the next paragraph and end with three new choices. "
+        f"Format the response as: \nStory: <paragraph>\nChoices: <choice1>; <choice2>; <choice3>"
+    )
+    try:
+        completion = openai.ChatCompletion.create(
+            model="gpt-3.5-turbo",
+            messages=[{"role": "user", "content": prompt}],
+            max_tokens=300,
+            temperature=0.8
+        )
+        ai_response = completion.choices[0].message['content']
+        story_text = ai_response
+        choices = []
+        if 'Choices:' in ai_response:
+            story_text, choices_str = ai_response.split('Choices:', 1)
+            choices = [c.strip() for c in choices_str.split(';') if c.strip()]
+        response = {
+            'text': story_text.strip(),
+            'choices': choices if choices else ["Continue"]
+        }
+    except Exception as e:
+        response = {
+            'text': f"Error continuing story: {e}",
+            'choices': ["Try again"]
+        }
     return jsonify(response)
 
 if __name__ == '__main__':
