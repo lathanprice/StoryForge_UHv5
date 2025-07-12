@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StoryForge - Interactive Tales</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Special+Elite&family=UnifrakturCook:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header>
+            <h1 class="title">StoryForge</h1>
+            <p class="subtitle">Where Tales Come Alive</p>
+        </header>
+
+        <!-- Story Setup Form -->
+        <form id="storySetupForm" class="story-form">
+            <div class="form-group">
+                <label for="setting">Story Setting</label>
+                <input type="text" id="setting" placeholder="e.g., the Grand Line" required>
+            </div>
+            <div class="form-group">
+                <label for="character">Main Character</label>
+                <input type="text" id="character" placeholder="e.g., Monkey D. Luffy" required>
+            </div>
+            <div class="form-group">
+                <label for="goal">Main Goal</label>
+                <input type="text" id="goal" placeholder="e.g., find the One Piece" required>
+            </div>
+            <button type="submit" class="btn-primary">Begin the Tale</button>
+        </form>
+
+        <!-- Story Display -->
+        <div id="storyDisplay" class="story-display hidden">
+            <div class="story-current">
+                <p id="currentStory" class="story-text"></p>
+                <div id="choicesContainer" class="choices-container">
+                    <!-- Choices will be inserted here by JavaScript -->
+                </div>
+            </div>
+            
+            <!-- Story Log -->
+            <div class="story-log">
+                <h3>Tale Thus Far</h3>
+                <div id="storyHistory" class="story-history">
+                    <!-- Past story segments will be logged here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Loading Indicator -->
+        <div id="loadingSpinner" class="loading-spinner hidden">
+            <div class="spinner"></div>
+            <p>Weaving your tale...</p>
+        </div>
+
+        <!-- Restart Button -->
+        <button id="restartBtn" class="btn-restart hidden">Start a New Tale</button>
+    </div>
+    
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>
