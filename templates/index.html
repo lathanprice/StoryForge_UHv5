@@ -60,8 +60,52 @@
 
         <!-- Restart Button -->
         <button id="restartBtn" class="btn-restart hidden">Start a New Tale</button>
+
+        <!-- Ending Button and Screen -->
+        <div id="ending-btn-container" style="display:none; margin-top:20px;">
+            <button id="ending-btn">View Ending</button>
+        </div>
+        <div id="ending-screen" style="display:none; margin-top:20px;"></div>
     </div>
     
     <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+    <script>
+    let storySoFar = "";
+
+    function appendToStory(text) {
+        storySoFar += text + "\n";
+        // ...existing code to update story display...
+    }
+
+    function handleResponse(data) {
+        appendToStory(data.text);
+        // ...existing code to update choices...
+        if (data.ending) {
+            document.getElementById('choices-container').style.display = 'none';
+            document.getElementById('ending-btn-container').style.display = '';
+        } else {
+            document.getElementById('choices-container').style.display = '';
+            document.getElementById('ending-btn-container').style.display = 'none';
+        }
+    }
+
+    document.getElementById('ending-btn').onclick = function() {
+        fetch('/ending', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({story: storySoFar})
+        })
+        .then(response => response.text())
+        .then(html => {
+            document.getElementById('ending-screen').innerHTML = html;
+            document.getElementById('ending-screen').style.display = '';
+            document.getElementById('story-container').style.display = 'none';
+            document.getElementById('choices-container').style.display = 'none';
+            document.getElementById('ending-btn-container').style.display = 'none';
+        });
+    };
+
+    // ...existing code for story/choice submission and UI updates...
+    </script>
 </body>
 </html>

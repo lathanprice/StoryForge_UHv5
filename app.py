@@ -4,10 +4,13 @@ import os
 # get OpenAI API key
 from dotenv import load_dotenv
 import os
-import openai
+from openai import OpenAI
 
 load_dotenv()  # Load variables from .env
-openai.api_key = os.getenv("OPENAI_API_KEY")  # Securely get the key
+openai_api_key = os.getenv("OPENAI_API_KEY")  # Securely get the key
+
+# Use OpenAI client for v1+
+client = OpenAI(api_key=openai_api_key)
 
 # Initialize Flask with explicit folder paths
 app = Flask(__name__, 
@@ -42,27 +45,36 @@ def generate_story():
         f"Format the response as: \nStory: <paragraph>\nChoices: <choice1>; <choice2>; <choice3>"
     )
     try:
-        completion = openai.ChatCompletion.create(
+        completion = client.chat.completions.create(
             model="gpt-3.5-turbo",
             messages=[{"role": "user", "content": prompt}],
             max_tokens=300,
             temperature=0.8
         )
-        ai_response = completion.choices[0].message['content']
+        ai_response = completion.choices[0].message.content
         # Parse the AI response
         story_text = ai_response
         choices = []
+        is_ending = False
         if 'Choices:' in ai_response:
             story_text, choices_str = ai_response.split('Choices:', 1)
             choices = [c.strip() for c in choices_str.split(';') if c.strip()]
+            # Detect ending if AI signals with "End the story" or "END"
+            for c in choices:
+                if c.lower() in ['end the story', 'the end', 'end', 'finish the story']:
+                    is_ending = True
+                    choices = [c for c in choices if c.lower() not in ['end the story', 'the end', 'end', 'finish the story']]
+                    break
         response = {
             'text': story_text.strip(),
-            'choices': choices if choices else ["Continue"]
+            'choices': choices if choices else (["Continue"] if not is_ending else []),
+            'ending': is_ending
         }
     except Exception as e:
         response = {
             'text': f"Error generating story: {e}",
-            'choices': ["Try again"]
+            'choices': ["Try again"],
+            'ending': False
         }
     return jsonify(response)
 
@@ -75,32 +87,55 @@ def continue_story():
         f"Continue the following interactive story based on the user's last choice. "
         f"Story so far: {story_so_far}\n"
         f"User's last choice: {last_choice}\n"
-        f"Write the next paragraph and end with three new choices. "
-        f"Format the response as: \nStory: <paragraph>\nChoices: <choice1>; <choice2>; <choice3>"
+        f"If the story is at a natural conclusion, write a final paragraph and indicate the end by including 'Choices: END'. "
+        f"Otherwise, write the next paragraph and end with three new choices. "
+        f"Format the response as: \nStory: <paragraph>\nChoices: <choice1>; <choice2>; <choice3 or END>"
     )
     try:
-        completion = openai.ChatCompletion.create(
+        completion = client.chat.completions.create(
             model="gpt-3.5-turbo",
             messages=[{"role": "user", "content": prompt}],
             max_tokens=300,
             temperature=0.8
         )
-        ai_response = completion.choices[0].message['content']
+        ai_response = completion.choices[0].message.content
         story_text = ai_response
         choices = []
+        is_ending = False
         if 'Choices:' in ai_response:
             story_text, choices_str = ai_response.split('Choices:', 1)
             choices = [c.strip() for c in choices_str.split(';') if c.strip()]
+            # Detect ending if AI signals with "END"
+            for c in choices:
+                if c.lower() in ['end the story', 'the end', 'end', 'finish the story', 'end']:
+                    is_ending = True
+                    choices = [c for c in choices if c.lower() not in ['end the story', 'the end', 'end', 'finish the story']]
+                    break
         response = {
             'text': story_text.strip(),
-            'choices': choices if choices else ["Continue"]
+            'choices': choices if choices else (["Continue"] if not is_ending else []),
+            'ending': is_ending
         }
     except Exception as e:
         response = {
             'text': f"Error continuing story: {e}",
-            'choices': ["Try again"]
+            'choices': ["Try again"],
+            'ending': False
         }
     return jsonify(response)
+
+@app.route('/ending', methods=['POST'])
+def ending_screen():
+    """
+    Expects JSON: { "story": "<full story text>" }
+    Renders an ending screen with the full story.
+    """
+    data = request.json
+    story = data.get('story', '')
+    try:
+        return render_template('ending.html', story=story)
+    except Exception as e:
+        return f"Error rendering ending: {e}", 500
 
 if __name__ == '__main__':
     app.debug = True
