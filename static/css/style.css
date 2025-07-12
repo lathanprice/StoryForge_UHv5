@@ -16,13 +16,31 @@
     box-sizing: border-box;
 }
 
+html, body {
+    height: 100%;
+    min-height: 100%;
+    width: 100%;
+    overflow-x: hidden;
+}
+
+html {
+    overscroll-behavior: none;
+    background: linear-gradient(135deg, #1a1a2e 0%, #2a1b3d 100%);
+    background-color: #1a1a2e;
+}
+
 body {
     background: linear-gradient(135deg, var(--color-bg) 0%, #2a1b3d 100%);
     color: var(--color-text);
     font-family: var(--font-body);
     line-height: 1.6;
     min-height: 100vh;
-    padding: 2rem;
+    height: 100%;
+    width: 100vw;
+    /* Remove default padding to avoid white space at edges */
+    padding: 0;
+    overscroll-behavior: none;
+    background-color: var(--color-bg);
 }
 
 /* Container Layout */
@@ -31,6 +49,7 @@ body {
     margin: 0 auto;
     padding: 2rem;
     position: relative;
+    min-height: 100vh;
 }
 
 /* Header Styles */
@@ -296,9 +315,12 @@ input[type="text"]:focus {
 /* Mobile Optimizations */
 @media (max-width: 768px) {
     body {
+        /* Remove padding here as well */
+        padding: 0;
+    }
+    .app-container {
         padding: 1rem;
     }
-    
     .title {
         font-size: 2.5rem;
     }
