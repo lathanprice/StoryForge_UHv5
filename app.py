@@ -189,14 +189,16 @@ def show_ending(story_id):
         return str(e), 500
 
 if __name__ == '__main__':
-    app.config.update(
-        SESSION_COOKIE_SECURE=True,
-        SESSION_COOKIE_HTTPONLY=True,
-        SESSION_COOKIE_SAMESITE='Lax'
-    )
-    app.debug = True
-    try:
-        app.run(host='0.0.0.0', port=5001)
-    except OSError as e:
-        print(f"Error: {e}")
-        print("Try using a different port or killing existing Flask processes")
+    app.run(debug=True)
+    
+#    app.config.update(
+#        SESSION_COOKIE_SECURE=True,
+#        SESSION_COOKIE_HTTPONLY=True,
+#        SESSION_COOKIE_SAMESITE='Lax'
+#    )
+#    app.debug = True
+#    try:
+#        app.run(host='0.0.0.0', port=5001)
+#    except OSError as e:
+#        print(f"Error: {e}")
+#        print("Try using a different port or killing existing Flask processes")
