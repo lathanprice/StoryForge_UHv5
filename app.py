@@ -1,10 +1,11 @@
-from flask import Flask, render_template, jsonify, request, send_from_directory, session
+from flask import Flask, render_template, jsonify, request, session
 import os
 import re
 
 from dotenv import load_dotenv
 from openai import OpenAI
 
+# Load environment variables
 load_dotenv()
 openai_api_key = os.getenv("OPENAI_API_KEY")
 client = OpenAI(api_key=openai_api_key)
@@ -59,9 +60,12 @@ def generate_story():
             if story_text.strip().lower().startswith('story:'):
                 story_text = story_text.strip()[6:].strip()
 
-            # Clean and normalize choices
             raw_choices = [c.strip() for c in choices_str.split(';') if c.strip()]
-            choices = [re.sub(r'^\s*[\d\-\*\•\)\.]+\s*', '', c) for c in raw_choices]
+            choices = []
+            for c in raw_choices:
+                cleaned = re.sub(r'^\s*(\d+[\.\)]|[-*•])\s*', '', c)
+                if cleaned:
+                    choices.append(cleaned.strip())
 
             for c in choices:
                 if c.lower() in ['end the story', 'the end', 'end', 'finish the story']:
@@ -112,8 +116,8 @@ def continue_story():
             max_tokens=300,
             temperature=0.8
         )
-        ai_response = completion.choices[0].message.content
 
+        ai_response = completion.choices[0].message.content
         story_text = ai_response
         choices = []
         is_ending = False
@@ -123,9 +127,12 @@ def continue_story():
             if story_text.strip().lower().startswith('story:'):
                 story_text = story_text.strip()[6:].strip()
 
-            # Clean and normalize choices
             raw_choices = [c.strip() for c in choices_str.split(';') if c.strip()]
-            choices = [re.sub(r'^\s*[\d\-\*\•\)\.]+\s*', '', c) for c in raw_choices]
+            choices = []
+            for c in raw_choices:
+                cleaned = re.sub(r'^\s*(\d+[\.\)]|[-*•])\s*', '', c)
+                if cleaned:
+                    choices.append(cleaned.strip())
 
             if any(c.lower() in ['end', 'the end', 'finish the story'] for c in choices):
                 is_ending = True
@@ -181,4 +188,3 @@ if __name__ == '__main__':
     except OSError as e:
         print(f"Error: {e}")
         print("Try using a different port or killing existing Flask processes")
-

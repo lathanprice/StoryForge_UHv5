@@ -34,40 +34,48 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     async function generateStory() {
-        loadingSpinner.classList.remove('hidden');
+    loadingSpinner.classList.remove('hidden');
 
-        try {
-            const response = await fetch('/generate', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    setting: currentStoryState.setting,
-                    character: currentStoryState.character,
-                    goal: currentStoryState.goal
-                })
-            });
+    // 🔧 Clear any leftover choices from previous stories
+    choicesContainer.innerHTML = '';
+    choicesContainer.classList.add('hidden');
 
-            const data = await response.json();
-            currentStoryState.fullText = data.text;
-            storySoFar = data.text + '\n';
+    try {
+        const response = await fetch('/generate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                setting: currentStoryState.setting,
+                character: currentStoryState.character,
+                goal: currentStoryState.goal
+            })
+        });
 
-            disableChoiceButtons();
-            typewriterEffect(currentStory, data.text, 20, () => {
-                createChoiceButtons(data.choices);
-            });
+        const data = await response.json();
+        currentStoryState.fullText = data.text;
+        storySoFar = data.text + '\n';
 
-        } catch (error) {
-            console.error('Error generating story:', error);
-            currentStory.textContent = 'Our tale has encountered a mysterious force... Please try again.';
-        }
+        typewriterEffect(currentStory, data.text, 20, () => {
+            createChoiceButtons(data.choices);
+            choicesContainer.classList.remove('hidden');
+        });
 
-        loadingSpinner.classList.add('hidden');
+    } catch (error) {
+        console.error('Error generating story:', error);
+        currentStory.textContent = 'Our tale has encountered a mysterious force... Please try again.';
     }
+
+    loadingSpinner.classList.add('hidden');
+}
+
 
     async function handleChoice(choice) {
         loadingSpinner.classList.remove('hidden');
-        disableChoiceButtons();
         logToHistory(currentStory.textContent, choice);
+
+        // Immediately hide and clear choices
+        choicesContainer.innerHTML = '';
+        choicesContainer.classList.add('hidden');
 
         try {
             const response = await fetch('/continue', {
@@ -103,11 +111,10 @@ document.addEventListener('DOMContentLoaded', () => {
                         }, 500);
                     }, 1200);
                 });
-                choicesContainer.innerHTML = '';
             } else {
-                disableChoiceButtons();
                 typewriterEffect(currentStory, data.text, 20, () => {
                     createChoiceButtons(data.choices);
+                    choicesContainer.classList.remove('hidden');
                 });
             }
 
@@ -125,12 +132,17 @@ document.addEventListener('DOMContentLoaded', () => {
             const button = document.createElement('button');
             button.className = 'choice-btn';
             button.textContent = choice;
-            button.disabled = true; // initially disabled
-            button.addEventListener('click', () => handleChoice(choice));
+            button.disabled = true; // Disabled initially
+            button.addEventListener('click', () => {
+                // Clear and hide immediately after clicking
+                choicesContainer.innerHTML = '';
+                choicesContainer.classList.add('hidden');
+                handleChoice(choice);
+            });
             choicesContainer.appendChild(button);
         });
 
-        // Enable them just after render finishes (in case of fallback)
+        // Enable them just after DOM insertion
         setTimeout(() => enableChoiceButtons(), 100);
     }
 
@@ -162,6 +174,9 @@ document.addEventListener('DOMContentLoaded', () => {
         element.textContent = '';
         let i = 0;
 
+        // Hide choices while typing
+        choicesContainer.classList.add('hidden');
+
         element._typingInterval = setInterval(() => {
             if (i < text.length) {
                 element.textContent += text.charAt(i);
@@ -169,7 +184,7 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 clearInterval(element._typingInterval);
                 if (typeof callback === 'function') callback();
-                enableChoiceButtons(); // Enable after typing finishes
+                enableChoiceButtons();
             }
         }, speed);
     }
@@ -190,3 +205,4 @@ document.addEventListener('DOMContentLoaded', () => {
         restartBtn.classList.add('hidden');
     });
 });
+
