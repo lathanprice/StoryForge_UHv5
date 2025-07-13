@@ -170,6 +170,24 @@ def ending_screen():
     except Exception as e:
         return f"Error rendering ending: {e}", 500
 
+@app.route('/ending/<story_id>')
+def show_ending(story_id):
+    try:
+        # Get the story from the session or database
+        story = session.get('final_story', '')
+        if not story:
+            return "Story not found", 404
+            
+        # Format the story with page numbers
+        formatted_story = ""
+        pages = story.split('\n\n')  # Assuming pages are separated by double newlines
+        for i, page in enumerate(pages, 1):
+            formatted_story += f"Page {i}:\n{page.strip()}\n\n"
+            
+        return render_template('ending.html', story=formatted_story)
+    except Exception as e:
+        return str(e), 500
+
 if __name__ == '__main__':
     app.debug = True
     try:
