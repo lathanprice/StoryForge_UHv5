@@ -43,6 +43,12 @@ body {
     background-color: var(--color-bg);
 }
 
+/* Fade-out effect for body */
+body.fade-out {
+    opacity: 0;
+    transition: opacity 0.5s ease;
+}
+
 /* Container Layout */
 .app-container {
     max-width: 800px;
