@@ -1,4 +1,4 @@
-/* ./static/css/input.css */
+/* ./src/input.css */
 
 /* Tailwind's base styles */
 @tailwind base;
@@ -9,8 +9,10 @@
 /* Tailwind's utility classes */
 @tailwind utilities;
 
-/* You can also add custom styles below */
+/* Custom styles can go below */
 body {
     background-color: #1a1a2e;
-    font-family: 'Special Elite', cursive;
+    font-family: 'UnifrakturCook', cursive;
 }
+
+
