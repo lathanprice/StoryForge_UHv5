@@ -2,24 +2,19 @@ from flask import Flask, render_template, jsonify, request, send_from_directory,
 import os
 import re
 
-# get OpenAI API key
 from dotenv import load_dotenv
 from openai import OpenAI
 
-load_dotenv()  # Load variables from .env
+load_dotenv()
 openai_api_key = os.getenv("OPENAI_API_KEY")
-
-# Use OpenAI client for v1+
 client = OpenAI(api_key=openai_api_key)
 
-# Initialize Flask with explicit folder paths
 app = Flask(
     __name__,
     static_folder='static',
     template_folder='templates',
     static_url_path='/static'
 )
-
 app.secret_key = os.getenv("FLASK_SECRET_KEY", "dev_secret")
 
 @app.route('/')
@@ -64,17 +59,14 @@ def generate_story():
             if story_text.strip().lower().startswith('story:'):
                 story_text = story_text.strip()[6:].strip()
 
-            # Try robust splitting
-            choices = [c.strip() for c in choices_str.split(';') if c.strip()]
-            if len(choices) <= 1:
-                choices = re.findall(r'(?:\d+\.\s*|-|\*|•)\s*([^;\n\r]+)', choices_str)
-                choices = [c.strip() for c in choices if c.strip()]
-            choices = list(dict.fromkeys(choices))
+            # Clean and normalize choices
+            raw_choices = [c.strip() for c in choices_str.split(';') if c.strip()]
+            choices = [re.sub(r'^\s*[\d\-\*\•\)\.]+\s*', '', c) for c in raw_choices]
 
             for c in choices:
                 if c.lower() in ['end the story', 'the end', 'end', 'finish the story']:
                     is_ending = True
-                    choices = [c for c in choices if c.lower() not in ['end the story', 'the end', 'end', 'finish the story']]
+                    choices = []
                     break
         else:
             if ai_response.strip().lower().startswith('story:'):
@@ -102,17 +94,16 @@ def continue_story():
     goal = data.get('goal') or session.get('goal', 'solve a mystery')
 
     prompt = (
-    f"You are a creative AI storyteller continuing an interactive story, one paragraph at a time. "
-    f"The main character has a goal: '{goal}'. When this goal is achieved — even partially — the story should end. "
-    f"Do NOT repeat or summarize earlier parts of the story. Only continue directly from the last event based on the user's last choice.\n\n"
-    f"Provide your output in this exact format:\n"
-    f"Story: <next paragraph>\nChoices: <choice1>; <choice2>; <choice3>\n"
-    f"If the story is complete, format it as:\nStory: <final paragraph>\nChoices: END\n\n"
-    f"---\nSTORY SO FAR:\n{story_so_far}\n"
-    f"USER'S LAST CHOICE: {last_choice}\n"
-    f"MAIN GOAL: {goal}\n"
-)
-
+        f"You are a creative AI storyteller continuing an interactive story, one paragraph at a time. "
+        f"The main character has a goal: '{goal}'. When this goal is achieved — even partially — the story should end. "
+        f"Do NOT repeat or summarize earlier parts of the story. Only continue directly from the last event based on the user's last choice.\n\n"
+        f"Provide your output in this exact format:\n"
+        f"Story: <next paragraph>\nChoices: <choice1>; <choice2>; <choice3>\n"
+        f"If the story is complete, format it as:\nStory: <final paragraph>\nChoices: END\n\n"
+        f"---\nSTORY SO FAR:\n{story_so_far}\n"
+        f"USER'S LAST CHOICE: {last_choice}\n"
+        f"MAIN GOAL: {goal}\n"
+    )
 
     try:
         completion = client.chat.completions.create(
@@ -127,21 +118,19 @@ def continue_story():
         choices = []
         is_ending = False
 
-        # Parse response
         if 'Choices:' in ai_response:
             story_text, choices_str = ai_response.split('Choices:', 1)
-
             if story_text.strip().lower().startswith('story:'):
                 story_text = story_text.strip()[6:].strip()
 
-            choices = [c.strip() for c in choices_str.split(';') if c.strip()]
-            # Normalize and check for ending
-            normalized = [c.lower() for c in choices]
-            if any(c in ['end', 'the end', 'finish the story'] for c in normalized):
+            # Clean and normalize choices
+            raw_choices = [c.strip() for c in choices_str.split(';') if c.strip()]
+            choices = [re.sub(r'^\s*[\d\-\*\•\)\.]+\s*', '', c) for c in raw_choices]
+
+            if any(c.lower() in ['end', 'the end', 'finish the story'] for c in choices):
                 is_ending = True
                 choices = []
         else:
-            # If no choices given, assume story ended
             is_ending = True
             choices = []
 
@@ -160,7 +149,6 @@ def continue_story():
 
     return jsonify(response)
 
-
 @app.route('/ending', methods=['POST'])
 def ending_screen():
     data = request.json
@@ -173,17 +161,15 @@ def ending_screen():
 @app.route('/ending/<story_id>')
 def show_ending(story_id):
     try:
-        # Get the story from the session or database
         story = session.get('final_story', '')
         if not story:
             return "Story not found", 404
-            
-        # Format the story with page numbers
+
         formatted_story = ""
-        pages = story.split('\n\n')  # Assuming pages are separated by double newlines
+        pages = story.split('\n\n')
         for i, page in enumerate(pages, 1):
             formatted_story += f"Page {i}:\n{page.strip()}\n\n"
-            
+
         return render_template('ending.html', story=formatted_story)
     except Exception as e:
         return str(e), 500
@@ -195,3 +181,4 @@ if __name__ == '__main__':
     except OSError as e:
         print(f"Error: {e}")
         print("Try using a different port or killing existing Flask processes")
+
