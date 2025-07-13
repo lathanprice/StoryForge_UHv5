@@ -20,35 +20,65 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Clear the original content
     storyContainer.textContent = '';
+
+    // Create the book container and pages
+    const bookContainer = document.querySelector('.book-container');
+    const leftPage = document.querySelector('.left-page .page-content');
+    const rightPage = document.querySelector('.right-page .page-content');
+    const prevButton = document.querySelector('.prev');
+    const nextButton = document.querySelector('.next');
     
-    // Create page elements with animations
-    pages.forEach((pageContent, index) => {
-        if (!pageContent.trim()) return; // Skip empty pages
-        
-        const pageElement = createPageElement(pageContent, index + 1);
-        storyContainer.appendChild(pageElement);
-        
-        // Trigger animation after a delay based on page number
-        setTimeout(() => {
-            pageElement.classList.add('visible');
-        }, index * 300);
-    });
-    
-    // Add restart button functionality with confirmation
-    const restartButton = document.querySelector('.restart-link');
-    restartButton.addEventListener('click', (e) => {
-        e.preventDefault();
-        
-        const confirmed = confirm('Are you sure you want to start a new tale?');
-        if (confirmed) {
-            document.body.classList.add('fade-out');
-            setTimeout(() => {
-                window.location.href = '/';
-            }, 500);
+    let currentPage = 0; // Start from the first page
+
+    // Function to render pages
+    function renderPages() {
+        // Set the left and right pages
+        leftPage.textContent = pages[currentPage];
+
+        if (currentPage + 1 < pages.length) {
+            rightPage.textContent = pages[currentPage + 1];
+        } else {
+            rightPage.textContent = ''; // Right page will be empty for odd-numbered pages
+        }
+
+        // Hide the previous button on the first page
+        if (currentPage === 0) {
+            prevButton.classList.add('hidden');
+        } else {
+            prevButton.classList.remove('hidden');
+        }
+
+        // Hide the next button on the last page
+        if (currentPage === pages.length - 1) {
+            nextButton.classList.add('hidden');
+        } else {
+            nextButton.classList.remove('hidden');
+        }
+
+        // Apply the flip effect to the book container
+        bookContainer.style.transform = `rotateY(${currentPage * -180}deg)`;
+    }
+
+    // Button event listeners
+    prevButton.addEventListener('click', () => {
+        if (currentPage > 0) {
+            currentPage--;
+            renderPages();
         }
     });
+
+    nextButton.addEventListener('click', () => {
+        if (currentPage < pages.length - 1) {
+            currentPage++;
+            renderPages();
+        }
+    });
+
+    // Initial render
+    renderPages();
 });
 
+// Function to parse story pages
 function parseStoryPages(content) {
     const pages = [];
     const pageRegex = /Page\s+(\d+):\s*([\s\S]*?)(?=(?:Page\s+\d+:|$))/gi;
@@ -71,22 +101,4 @@ function parseStoryPages(content) {
     console.log('Found pages:', pages); // Debug log
     
     return pages;
-}
-
-function createPageElement(content, pageNumber) {
-    const pageDiv = document.createElement('div');
-    pageDiv.className = 'story-page';
-    
-    const pageTitle = document.createElement('h2');
-    pageTitle.className = 'page-title';
-    pageTitle.textContent = `Page ${pageNumber}`;
-    
-    const pageContent = document.createElement('div');
-    pageContent.className = 'page-content';
-    pageContent.textContent = content;
-    
-    pageDiv.appendChild(pageTitle);
-    pageDiv.appendChild(pageContent);
-    
-    return pageDiv;
 }
