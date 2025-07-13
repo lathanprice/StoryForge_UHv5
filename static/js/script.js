@@ -34,40 +34,39 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     async function generateStory() {
-    loadingSpinner.classList.remove('hidden');
+        loadingSpinner.classList.remove('hidden');
 
-    // 🔧 Clear any leftover choices from previous stories
-    choicesContainer.innerHTML = '';
-    choicesContainer.classList.add('hidden');
+        // 🔧 Clear any leftover choices from previous stories
+        choicesContainer.innerHTML = '';
+        choicesContainer.classList.add('hidden');
 
-    try {
-        const response = await fetch('/generate', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                setting: currentStoryState.setting,
-                character: currentStoryState.character,
-                goal: currentStoryState.goal
-            })
-        });
+        try {
+            const response = await fetch('/generate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    setting: currentStoryState.setting,
+                    character: currentStoryState.character,
+                    goal: currentStoryState.goal
+                })
+            });
 
-        const data = await response.json();
-        currentStoryState.fullText = data.text;
-        storySoFar = data.text + '\n';
+            const data = await response.json();
+            currentStoryState.fullText = data.text;
+            storySoFar = data.text + '\n';
 
-        typewriterEffect(currentStory, data.text, 20, () => {
-            createChoiceButtons(data.choices);
-            choicesContainer.classList.remove('hidden');
-        });
+            typewriterEffect(currentStory, data.text, 20, () => {
+                createChoiceButtons(data.choices);
+                choicesContainer.classList.remove('hidden');
+            });
 
-    } catch (error) {
-        console.error('Error generating story:', error);
-        currentStory.textContent = 'Our tale has encountered a mysterious force... Please try again.';
+        } catch (error) {
+            console.error('Error generating story:', error);
+            currentStory.textContent = 'Our tale has encountered a mysterious force... Please try again.';
+        }
+
+        loadingSpinner.classList.add('hidden');
     }
-
-    loadingSpinner.classList.add('hidden');
-}
-
 
     async function handleChoice(choice) {
         loadingSpinner.classList.remove('hidden');
@@ -104,11 +103,15 @@ document.addEventListener('DOMContentLoaded', () => {
                             })
                             .then(res => res.text())
                             .then(html => {
-                                document.open();
-                                document.write(html);
-                                document.close();
+                                const doc = document.documentElement;
+                                doc.innerHTML = html;
+                                doc.style.opacity = '0';
+                                requestAnimationFrame(() => {
+                                    doc.style.transition = 'opacity 1s ease';
+                                    doc.style.opacity = '1';
+                                });
                             });
-                        }, 500);
+                        }, 1000);
                     }, 1200);
                 });
             } else {
@@ -136,12 +139,15 @@ document.addEventListener('DOMContentLoaded', () => {
             button.textContent = choice;
             button.disabled = true;
 
+            button.style.opacity = '0';
+            button.style.transition = 'opacity 0.8s ease';
+
             button.addEventListener('click', () => handleChoice(choice));
             choicesContainer.appendChild(button);
 
-            // Staggered animation: add `.show` class with delay
             setTimeout(() => {
                 button.classList.add('show');
+                button.style.opacity = '1';
             }, 100 * index);
         });
 
@@ -177,7 +183,6 @@ document.addEventListener('DOMContentLoaded', () => {
         element.textContent = '';
         let i = 0;
 
-        // Hide choices while typing
         choicesContainer.classList.add('hidden');
 
         element._typingInterval = setInterval(() => {
@@ -208,4 +213,3 @@ document.addEventListener('DOMContentLoaded', () => {
         restartBtn.classList.add('hidden');
     });
 });
-
