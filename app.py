@@ -1,4 +1,4 @@
-from flask import Flask, render_template, jsonify, request, session
+from flask import Flask, render_template, jsonify, request, session, make_response
 import os
 import re
 
@@ -14,7 +14,6 @@ app = Flask(
     __name__,
     static_folder='static',
     template_folder='templates',
-    static_url_path='/static'
 )
 app.secret_key = os.getenv("FLASK_SECRET_KEY", "dev_secret")
 
@@ -161,27 +160,54 @@ def ending_screen():
     data = request.json
     story = data.get('story', '')
     try:
-        return render_template('ending.html', story=story)
+        # Clean up the story text and ensure proper formatting
+        story = re.sub(r'\s*\n\s*', '\n', story.strip())
+        story = re.sub(r'\n(?!\n)', '\n\n', story)
+        story = re.sub(r'\n{3,}', '\n\n', story)
+        
+        # Split into paragraphs and format
+        paragraphs = story.split('\n\n')
+        formatted_paragraphs = []
+        for para in paragraphs:
+            if para.strip():
+                formatted_paragraphs.append(para.strip())
+        
+        # Rejoin with proper spacing
+        story = '\n\n'.join(formatted_paragraphs)
+        
+        # Store in session for reloads
+        session['final_story'] = story
+        
+        # Create response with proper headers
+        response = make_response(render_template('ending.html', story=story))
+        response.headers.update({
+            'Content-Type': 'text/html; charset=utf-8',
+            'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0',
+            'Content-Security-Policy': "default-src 'self'; style-src 'self' https://fonts.googleapis.com 'unsafe-inline'; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:;",
+            'X-Content-Type-Options': 'nosniff',
+            'Pragma': 'no-cache'
+        })
+        return response
     except Exception as e:
         return f"Error rendering ending: {e}", 500
 
 @app.route('/ending/<story_id>')
 def show_ending(story_id):
     try:
+        from flask import session
         story = session.get('final_story', '')
         if not story:
             return "Story not found", 404
-
-        formatted_story = ""
-        pages = story.split('\n\n')
-        for i, page in enumerate(pages, 1):
-            formatted_story += f"Page {i}:\n{page.strip()}\n\n"
-
-        return render_template('ending.html', story=formatted_story)
+        return render_template('ending.html', story=story)
     except Exception as e:
         return str(e), 500
 
 if __name__ == '__main__':
+    app.config.update(
+        SESSION_COOKIE_SECURE=True,
+        SESSION_COOKIE_HTTPONLY=True,
+        SESSION_COOKIE_SAMESITE='Lax'
+    )
     app.debug = True
     try:
         app.run(host='0.0.0.0', port=5001)
