@@ -128,22 +128,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function createChoiceButtons(choices) {
         choicesContainer.innerHTML = '';
-        choices.forEach(choice => {
+        choicesContainer.classList.remove('hidden');
+
+        choices.forEach((choice, index) => {
             const button = document.createElement('button');
             button.className = 'choice-btn';
             button.textContent = choice;
-            button.disabled = true; // Disabled initially
-            button.addEventListener('click', () => {
-                // Clear and hide immediately after clicking
-                choicesContainer.innerHTML = '';
-                choicesContainer.classList.add('hidden');
-                handleChoice(choice);
-            });
+            button.disabled = true;
+
+            button.addEventListener('click', () => handleChoice(choice));
             choicesContainer.appendChild(button);
+
+            // Staggered animation: add `.show` class with delay
+            setTimeout(() => {
+                button.classList.add('show');
+            }, 100 * index);
         });
 
-        // Enable them just after DOM insertion
-        setTimeout(() => enableChoiceButtons(), 100);
+        const totalDelay = 100 * choices.length;
+        setTimeout(() => enableChoiceButtons(), totalDelay + 500);
     }
 
     function disableChoiceButtons() {
