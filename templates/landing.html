@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StoryForge - Where Tales Come Alive</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Special+Elite&family=UnifrakturCook:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+        }
+        .landing-hero {
+            width: 100vw;
+            min-height: 48vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            background: linear-gradient(rgba(26,26,46,0.8), rgba(42,27,61,0.9)), url("{{ url_for('static', filename='Images/parchment-texture.png') }}");
+            background-size: cover;
+            background-position: center;
+            border-radius: 0 0 32px 32px;
+            box-shadow: 0 0 30px rgba(106,76,147,0.4);
+            margin-bottom: 2.5rem;
+            padding: 0 2rem;
+        }
+        .forge-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 2rem;
+            color: var(--color-accent);
+            filter: drop-shadow(0 0 10px rgba(176,136,249,0.3));
+        }
+        .landing-title {
+            font-family: var(--font-display);
+            font-size: 4rem;
+            color: var(--color-accent);
+            text-shadow: 0 0 10px rgba(176,136,249,0.3);
+            margin-bottom: 1rem;
+        }
+        .landing-subtitle {
+            font-family: var(--font-secondary);
+            font-size: 1.3rem;
+            color: var(--color-secondary);
+            margin-bottom: 2rem;
+        }
+        .cta-btn {
+            background: var(--color-primary);
+            color: var(--color-text);
+            padding: 1.2rem 3rem;
+            border: none;
+            border-radius: 8px;
+            font-family: var(--font-secondary);
+            font-size: 1.3rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            box-shadow: 0 0 20px rgba(106,76,147,0.3);
+        }
+        .cta-btn:hover {
+            background: var(--color-secondary);
+            box-shadow: 0 0 25px rgba(176,136,249,0.5);
+            transform: translateY(-3px);
+        }
+        .features-section {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 2.5rem 0 1.5rem 0;
+        }
+        .features-title {
+            font-family: var(--font-display);
+            font-size: 2.5rem;
+            color: var(--color-accent);
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .features-grid {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 2.7rem;
+            max-width: 1400px;
+            width: 100%;
+            padding: 0 2rem;
+        }
+        .feature-card {
+            flex: 1 1 300px;
+            max-width: 380px;
+            min-width: 260px;
+            background: rgba(26,26,46,0.8);
+            padding: 2.5rem 1.2rem;
+            border-radius: 14px;
+            border: 1px solid var(--color-primary);
+            box-shadow: 0 0 20px rgba(106,76,147,0.2);
+            text-align: center;
+        }
+        .feature-icon {
+            width: 40px;
+            height: 40px;
+            color: var(--color-accent);
+            margin-bottom: 1rem;
+        }
+        .feature-title {
+            font-family: var(--font-secondary);
+            font-size: 1.1rem;
+            color: var(--color-secondary);
+            margin-bottom: 0.5rem;
+        }
+        .feature-desc {
+            font-family: var(--font-body);
+            color: var(--color-text);
+            font-size: 1rem;
+        }
+        @media (max-width: 1200px) {
+            .features-grid {
+                gap: 1.7rem;
+                padding: 0 1rem;
+            }
+        }
+        @media (max-width: 900px) {
+            .features-grid {
+                flex-direction: column;
+                align-items: center;
+                gap: 1.7rem;
+            }
+            .feature-card {
+                max-width: 100%;
+            }
+        }
+        @media (max-width: 768px) {
+            .landing-title { font-size: 2.5rem; }
+            .features-title { font-size: 1.5rem; }
+            .landing-hero { padding: 2rem 0.5rem; min-height: 38vh; }
+        }
+    </style>
+</head>
+<body>
+    <div class="landing-hero">
+        <svg class="forge-icon" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 2L13.09 8.26L20 9L13.09 9.74L12 16L10.91 9.74L4 9L10.91 8.26L12 2Z"/>
+            <path d="M19 15L18.26 12.74L16 12L18.26 11.26L19 9L19.74 11.26L22 12L19.74 12.74L19 15Z"/>
+            <path d="M5 6L4.26 3.74L2 3L4.26 2.26L5 0L5.74 2.26L8 3L5.74 3.74L5 6Z"/>
+        </svg>
+        <h1 class="landing-title">StoryForge</h1>
+        <p class="landing-subtitle">Where Tales Come Alive - Craft compelling narratives with AI-powered storytelling</p>
+        <button class="cta-btn" onclick="window.location.href='/write'">Start Writing</button>
+    </div>
+    <div class="features-section">
+        <h2 class="features-title">Key Features</h2>
+        <div class="features-grid">
+            <div class="feature-card">
+                <svg class="feature-icon" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 2L13.09 8.26L20 9L13.09 9.74L12 16L10.91 9.74L4 9L10.91 8.26L12 2Z"/>
+                </svg>
+                <div class="feature-title">AI-Powered Story Generation</div>
+                <div class="feature-desc">Generate unique story ideas, plot outlines, and character profiles with our advanced AI algorithms.</div>
+            </div>
+            <div class="feature-card">
+                <svg class="feature-icon" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+                </svg>
+                <div class="feature-title">Interactive Storytelling</div>
+                <div class="feature-desc">Make choices that shape your story's direction. Every decision matters as you craft your unique narrative journey.</div>
+            </div>
+            <div class="feature-card">
+                <svg class="feature-icon" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                </svg>
+                <div class="feature-title">Character Development</div>
+                <div class="feature-desc">Develop complex characters and intricate plots with our intuitive tools and suggestions.</div>
+            </div>
+            <div class="feature-card">
+                <svg class="feature-icon" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
+                </svg>
+                <div class="feature-title">Story Export & Share</div>
+                <div class="feature-desc">At the end, you get to see your story in a beautiful book format.</div>
+            </div>
+        </div>
+    </div>
+</body>
+</html> 

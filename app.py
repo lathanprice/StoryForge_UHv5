@@ -18,12 +18,12 @@ app = Flask(
 app.secret_key = os.getenv("FLASK_SECRET_KEY", "dev_secret")
 
 @app.route('/')
+def landing():
+    return render_template('landing.html')
+
+@app.route('/write')
 def index():
-    try:
-        return render_template('index.html')
-    except Exception as e:
-        print(f"Error rendering template: {e}")
-        return str(e), 500
+    return render_template('index.html')
 
 @app.route('/generate', methods=['POST'])
 def generate_story():
@@ -155,41 +155,27 @@ def continue_story():
 
     return jsonify(response)
 
-@app.route('/ending', methods=['POST'])
+@app.route('/ending', methods=['GET', 'POST'])
 def ending_screen():
-    data = request.json
-    story = data.get('story', '')
-    try:
-        # Clean up the story text and ensure proper formatting
+    if request.method == 'POST':
+        data = request.json or {}
+        story = data.get('story', '') if data else ''
+        if not isinstance(story, str):
+            story = str(story)
+        # Clean up and store in session
         story = re.sub(r'\s*\n\s*', '\n', story.strip())
         story = re.sub(r'\n(?!\n)', '\n\n', story)
         story = re.sub(r'\n{3,}', '\n\n', story)
-        
-        # Split into paragraphs and format
-        paragraphs = story.split('\n\n')
-        formatted_paragraphs = []
-        for para in paragraphs:
-            if para.strip():
-                formatted_paragraphs.append(para.strip())
-        
-        # Rejoin with proper spacing
-        story = '\n\n'.join(formatted_paragraphs)
-        
-        # Store in session for reloads
+        paragraphs = [para.strip() for para in story.split('\n\n') if isinstance(para, str) and para.strip()]
+        story = '\n\n'.join(paragraphs)
         session['final_story'] = story
-        
-        # Create response with proper headers
-        response = make_response(render_template('ending.html', story=story))
-        response.headers.update({
-            'Content-Type': 'text/html; charset=utf-8',
-            'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0',
-            'Content-Security-Policy': "default-src 'self'; style-src 'self' https://fonts.googleapis.com 'unsafe-inline'; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:;",
-            'X-Content-Type-Options': 'nosniff',
-            'Pragma': 'no-cache'
-        })
-        return response
-    except Exception as e:
-        return f"Error rendering ending: {e}", 500
+        return '', 204  # No content, just acknowledge
+
+    # GET request
+    story = session.get('final_story', '')
+    if not isinstance(story, str) or not story:
+        return "No story found.", 404
+    return render_template('ending.html', story=story)
 
 @app.route('/ending/<story_id>')
 def show_ending(story_id):

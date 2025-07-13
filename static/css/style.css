@@ -75,8 +75,9 @@ body.fade-out {
 
 /* Header Styles */
 header {
+    width: 100%;
     text-align: center;
-    margin-bottom: 3rem;
+    margin-top: 2rem;
 }
 
 .title {
@@ -84,7 +85,7 @@ header {
     font-size: 4rem;
     color: var(--color-accent);
     text-shadow: 0 0 10px rgba(176, 136, 249, 0.3);
-    margin-bottom: 0.5rem;
+    margin-bottom: 1.5rem;
 }
 
 .subtitle {
@@ -357,76 +358,68 @@ input[type="text"]:focus {
     }
 }
 
-/* Book Container Layout */
+.ending-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    width: 100vw;
+    box-sizing: border-box;
+    padding: 0;
+}
+
+header, footer {
+    width: 100%;
+    text-align: center;
+}
+
 .book-container {
     display: flex;
     justify-content: center;
+    align-items: center;
     gap: 2rem;
     perspective: 2000px;
-    margin: 2rem auto;
+    margin: 3rem auto 0 auto;
     max-width: 1200px;
-}
-
-/* Each Page Style */
-.page {
-    background: rgba(106, 76, 147, 0.1);
-    border: 1px solid rgba(139, 107, 183, 0.3);
-    border-radius: 8px;
-    padding: 2rem;
-    width: 100%;
-    min-height: 500px;
-    box-shadow: 0 0 20px rgba(176, 136, 249, 0.1);
-    transition: transform 0.5s ease;
-}
-
-.ending-controls {
-    display: none;
-    margin-top: 20px;
-}
-
-.ending-screen {
-    display: none;
-    margin-top: 20px;
-}
-
-/* Book styling */
-.book-container {
-    display: flex;
-    justify-content: center;
-    gap: 2rem;
-    margin: 2rem auto;
-    max-width: 1200px;
-    perspective: 2000px;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.5s ease-in-out;
+    background: none;
 }
 
 .page {
-    background: rgba(106, 76, 147, 0.2);
-    border: 1px solid rgba(139, 107, 183, 0.4);
-    border-radius: 8px;
-    padding: 2rem;
+    background: rgba(26, 26, 46, 0.97);
+    border-radius: 14px;
     width: 100%;
-    min-height: 600px;
-    box-shadow: 0 0 20px rgba(176, 136, 249, 0.2);
-    transition: transform 0.5s ease;
+    max-width: 480px;
+    height: 650px;
+    padding: 2.5rem 2rem 2rem 2rem;
     position: relative;
+    box-shadow: 0 6px 32px rgba(106, 76, 147, 0.18), 0 8px 32px rgba(0,0,0,0.18);
+    transition: transform 0.3s ease-in-out;
+    transform-origin: center;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
 }
 
 .page-content {
-    color: #ffffff;
-    font-family: var(--font-body);
-    font-size: 1.2rem;
-    line-height: 2;
-    text-align: justify;
+    font-family: 'Cinzel', serif;
+    font-size: 1.18rem;
+    line-height: 2.1;
+    color: var(--color-text);
     height: 100%;
-    overflow-y: auto;
-    padding: 2rem;
-    background: rgba(26, 26, 46, 0.95);
-    border-radius: 4px;
-    letter-spacing: 0.5px;
-    word-spacing: 2px;
-    box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.4);
+    overflow-y: hidden;
+    padding-right: 0.5rem;
     position: relative;
-    z-index: 1;
+    text-align: justify;
+    text-transform: none;
+    letter-spacing: normal;
+    word-spacing: normal;
+    font-variant: normal;
+    font-weight: 400;
 }
 
 .page-content p {
@@ -437,13 +430,16 @@ input[type="text"]:focus {
 /* Enhanced paragraph styling */
 .page-content .paragraph {
     opacity: 0;
-    animation: fadeIn 0.5s ease-in forwards;
+    animation: fadeIn 0.8s ease-in forwards;
+    margin-bottom: 1.5rem;
 }
 
 .page-content .paragraph p {
-    margin-bottom: 1.5rem;
+    margin-bottom: 1.2rem;
     color: var(--color-text);
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+    line-height: 1.9;
+    text-indent: 2em;
 }
 
 .page-content .first-letter {
@@ -487,11 +483,11 @@ input[type="text"]:focus {
     text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.2);
 }
 
-/* Style the first letter of each paragraph */
+/* Remove the rule that causes all first letters to be purple */
 .page-content p:first-letter {
-    font-size: 1.2em;
+    /* font-size: 1.2em;
     font-weight: bold;
-    color: var(--color-accent);
+    color: var(--color-accent); */
 }
 
 .page-content::-webkit-scrollbar {
@@ -512,19 +508,33 @@ input[type="text"]:focus {
     display: flex;
     justify-content: center;
     gap: 2rem;
+    margin-top: 2rem;
 }
 
 .navigation button {
     transition: all 0.3s ease;
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
+    border: 1px solid rgba(139, 107, 183, 0.3);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    font-weight: 600;
+    letter-spacing: 0.5px;
 }
 
 .navigation button:hover {
     transform: scale(1.05);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+    background: linear-gradient(135deg, var(--color-secondary) 0%, var(--color-accent) 100%);
+}
+
+.navigation button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
 }
 
 /* 3D Flip Effect */
 .page.flipped {
-    transform: rotateY(-180deg);
+    transform: rotateY(180deg);
 }
 
 /* Responsive adjustments */
@@ -532,10 +542,19 @@ input[type="text"]:focus {
     .book-container {
         flex-direction: column;
         gap: 1rem;
+        align-items: center;
+        margin-top: 1rem;
     }
     
     .page {
-        min-height: 300px;
+        max-width: 98vw;
+        height: 420px;
+        padding: 1.2rem;
+    }
+    
+    .book-paragraph .first-letter {
+        font-size: 2.2rem;
+        line-height: 1.7rem;
     }
 }
 
@@ -563,10 +582,181 @@ input[type="text"]:focus {
 @keyframes fadeSlideUp {
     0% {
         opacity: 0;
-        transform: translateY(20px);
+        transform: translateY(20px) translateX(-40px);
     }
     100% {
         opacity: 1;
-        transform: translateY(0);
+        transform: translateY(0) translateX(-40px);
     }
+}
+
+.book-paragraph {
+    margin-bottom: 1.5rem;
+    text-indent: 2rem;
+    position: relative;
+    font-family: 'Cinzel', serif;
+    text-transform: none;
+    font-size: 1.18rem;
+    line-height: 2.1;
+    color: var(--color-text);
+    text-align: left;
+    letter-spacing: normal;
+    word-spacing: normal;
+    font-variant: normal;
+    font-weight: 400;
+    overflow: hidden;
+}
+
+.book-paragraph:first-child {
+    text-indent: 0;
+    margin-top: 0;
+    padding-left: 0.1em; /* helps align first line with rest of text */
+}
+
+.book-paragraph:first-child::first-line {
+    font-weight: 500;
+    letter-spacing: 0.01em;
+}
+
+.book-paragraph .first-letter {
+    float: left;
+    font-family: 'UnifrakturCook', cursive;
+    font-size: 5.2rem;
+    line-height: 0.8;
+    margin-right: 0.7rem;
+    margin-top: 0.05em;
+    margin-bottom: 0.1em;
+    color: var(--color-accent);
+    font-weight: 700;
+    text-shadow: 0 2px 12px rgba(176, 136, 249, 0.25), 2px 2px 4px rgba(0,0,0,0.18);
+    vertical-align: top;
+}
+
+.book-navigation {
+    transform: translateX(-20px);
+    margin-right: auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    align-self: center;
+    gap: 2rem;
+    margin-top: 1.5rem;
+    padding: 0.5rem 0 0.5rem 0;
+    width: 100%;
+    z-index: 10;
+    position: relative;
+}
+
+.book-navigation button {
+    background: var(--color-primary);
+    color: var(--color-text);
+    padding: 0.8rem 2.2rem;
+    border: none;
+    border-radius: 6px;
+    font-family: var(--font-secondary);
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    opacity: 0.95;
+    min-width: 120px;
+    text-transform: none;
+    letter-spacing: 0.03em;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.13);
+    font-weight: 600;
+}
+
+.book-navigation button:hover {
+    background: var(--color-secondary);
+    transform: translateY(-2px) scale(1.04);
+    opacity: 1;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
+}
+
+.book-navigation button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.page-number {
+    position: absolute;
+    bottom: 1rem;
+    right: 1rem;
+    font-size: 0.9rem;
+    color: var(--color-secondary);
+    font-family: var(--font-secondary);
+    opacity: 0.8;
+}
+
+.help-text {
+    text-align: center;
+    font-size: 1rem;
+    color: #b088f9;
+    margin: 1.5rem 0 1rem 0;
+    font-family: 'Special Elite', cursive;
+    letter-spacing: 0.03em;
+    width: 100%;
+}
+
+footer {
+    margin-top: 1.5rem;
+    margin-bottom: 1rem;
+    width: 100%;
+    text-align: center;
+}
+
+@media (max-width: 1200px) {
+    .book-container {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: center;
+        margin-top: 1.5rem;
+    }
+    .page {
+        max-width: 98vw;
+        height: 420px;
+        padding: 1.2rem;
+    }
+    .book-paragraph .first-letter {
+        font-size: 2.2rem;
+        line-height: 1.7rem;
+    }
+    .help-text {
+        margin: 1rem 0 0.5rem 0;
+    }
+    footer {
+        margin-top: 1rem;
+        margin-bottom: 0.5rem;
+    }
+}
+
+.first-dropcap-paragraph {
+    text-align: left;
+    text-justify: auto;
+}
+
+.book-area {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    /* width: 100%; removed to prevent stretching wider than book */
+}
+
+.book-navigation {
+    margin-left: auto;
+    margin-right: auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    align-self: center;
+    gap: 2rem;
+    margin-top: 1.5rem;
+    padding: 0.5rem 0 0.5rem 0;
+    z-index: 10;
+    position: relative;
+}
+
+.restart-link-wrapper {
+    transform: translateX(-12px);
 }

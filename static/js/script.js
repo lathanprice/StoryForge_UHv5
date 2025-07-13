@@ -101,15 +101,8 @@ document.addEventListener('DOMContentLoaded', () => {
                                 headers: { 'Content-Type': 'application/json' },
                                 body: JSON.stringify({ story: currentStoryState.fullText })
                             })
-                            .then(res => res.text())
-                            .then(html => {
-                                const doc = document.documentElement;
-                                doc.innerHTML = html;
-                                doc.style.opacity = '0';
-                                requestAnimationFrame(() => {
-                                    doc.style.transition = 'opacity 1s ease';
-                                    doc.style.opacity = '1';
-                                });
+                            .then(() => {
+                                window.location.href = "/ending";
                             });
                         }, 1000);
                     }, 1200);
