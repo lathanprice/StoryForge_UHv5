@@ -1,5 +1,4 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // DOM Elements
     const storyForm = document.getElementById('storySetupForm');
     const storyDisplay = document.getElementById('storyDisplay');
     const currentStory = document.getElementById('currentStory');
@@ -8,7 +7,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const loadingSpinner = document.getElementById('loadingSpinner');
     const restartBtn = document.getElementById('restartBtn');
 
-    // Story State
     let currentStoryState = {
         setting: '',
         character: '',
@@ -19,7 +17,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let storySoFar = '';
 
-    // Form Submission Handler
     storyForm.addEventListener('submit', async (e) => {
         e.preventDefault();
 
@@ -36,7 +33,6 @@ document.addEventListener('DOMContentLoaded', () => {
         await generateStory();
     });
 
-    // Generate story (first paragraph)
     async function generateStory() {
         loadingSpinner.classList.remove('hidden');
 
@@ -54,8 +50,11 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = await response.json();
             currentStoryState.fullText = data.text;
             storySoFar = data.text + '\n';
-            typewriterEffect(currentStory, data.text);
-            createChoiceButtons(data.choices);
+
+            disableChoiceButtons();
+            typewriterEffect(currentStory, data.text, 20, () => {
+                createChoiceButtons(data.choices);
+            });
 
         } catch (error) {
             console.error('Error generating story:', error);
@@ -65,9 +64,9 @@ document.addEventListener('DOMContentLoaded', () => {
         loadingSpinner.classList.add('hidden');
     }
 
-    // Handle choice selection
     async function handleChoice(choice) {
         loadingSpinner.classList.remove('hidden');
+        disableChoiceButtons();
         logToHistory(currentStory.textContent, choice);
 
         try {
@@ -86,7 +85,6 @@ document.addEventListener('DOMContentLoaded', () => {
             storySoFar += data.text + '\n';
 
             if (data.ending) {
-                // Show only the final paragraph briefly, then fade out and redirect
                 typewriterEffect(currentStory, data.text, 20, () => {
                     setTimeout(() => {
                         document.body.classList.add('fade-out');
@@ -103,12 +101,14 @@ document.addEventListener('DOMContentLoaded', () => {
                                 document.close();
                             });
                         }, 500);
-                    }, 1200); // delay after final paragraph appears
+                    }, 1200);
                 });
                 choicesContainer.innerHTML = '';
             } else {
-                typewriterEffect(currentStory, data.text);
-                createChoiceButtons(data.choices);
+                disableChoiceButtons();
+                typewriterEffect(currentStory, data.text, 20, () => {
+                    createChoiceButtons(data.choices);
+                });
             }
 
         } catch (error) {
@@ -119,19 +119,31 @@ document.addEventListener('DOMContentLoaded', () => {
         loadingSpinner.classList.add('hidden');
     }
 
-    // Create choice buttons
     function createChoiceButtons(choices) {
         choicesContainer.innerHTML = '';
         choices.forEach(choice => {
             const button = document.createElement('button');
             button.className = 'choice-btn';
             button.textContent = choice;
+            button.disabled = true; // initially disabled
             button.addEventListener('click', () => handleChoice(choice));
             choicesContainer.appendChild(button);
         });
+
+        // Enable them just after render finishes (in case of fallback)
+        setTimeout(() => enableChoiceButtons(), 100);
     }
 
-    // Add story segments to history
+    function disableChoiceButtons() {
+        const buttons = document.querySelectorAll('.choice-btn');
+        buttons.forEach(btn => btn.disabled = true);
+    }
+
+    function enableChoiceButtons() {
+        const buttons = document.querySelectorAll('.choice-btn');
+        buttons.forEach(btn => btn.disabled = false);
+    }
+
     function logToHistory(storyText, choice) {
         const historyEntry = document.createElement('div');
         historyEntry.className = 'history-entry';
@@ -143,7 +155,6 @@ document.addEventListener('DOMContentLoaded', () => {
         storyHistory.scrollTop = storyHistory.scrollHeight;
     }
 
-    // Typewriter text effect
     function typewriterEffect(element, text, speed = 20, callback) {
         if (element._typingInterval) {
             clearInterval(element._typingInterval);
@@ -158,11 +169,11 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 clearInterval(element._typingInterval);
                 if (typeof callback === 'function') callback();
+                enableChoiceButtons(); // Enable after typing finishes
             }
         }, speed);
     }
 
-    // Reset game state
     restartBtn.addEventListener('click', () => {
         currentStoryState = {
             setting: '',
