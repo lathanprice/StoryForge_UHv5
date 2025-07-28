@@ -1,4 +1,4 @@
-# StoryForge
+# GenTale
 
 AI-powered interactive storytelling platform where your choices create unique narratives.
 
@@ -22,7 +22,7 @@ AI-powered interactive storytelling platform where your choices create unique na
 1. **Clone the repository**
    ```bash
    git clone <repository-url>
-   cd StoryForge_UHv5
+   cd GenTale_UHv5
    ```
 
 2. **Set up Python environment**
@@ -71,7 +71,7 @@ Python, Flask, JavaScript, HTML/CSS, Tailwind CSS, OpenAI GPT-3.5-turbo API, Nod
 ## Project Structure
 
 ```
-StoryForge_UHv5/
+GenTale_UHv5/
 ├── app.py                 # Flask backend application
 ├── prompt_utils.py        # AI prompt utilities
 ├── requirements.txt       # Python dependencies
